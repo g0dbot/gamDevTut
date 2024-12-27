@@ -18,7 +18,7 @@ const CANVAS_HEIGHT = canvas.height = 600;
 
 //bringing spritesheet into project
 const playerImage = new Image(); //built in image constructor class, creates image the same as in using img tag in html
-playerImage.src = "res/shadow_dog.png";
+playerImage.src = "../res/shadow_dog.png";
 
 //global variables for sprite dimensions
 const spriteWidth = 575;//really 573

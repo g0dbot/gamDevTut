@@ -29,22 +29,77 @@ backgroundLayer4.src = "../res/bg/layer-4.png";
 const backgroundLayer5 = new Image();
 backgroundLayer5.src = "../res/bg/layer-5.png";
 
-let x = 0;//showing that frame is constantly being rendered
-let x2= 2400;//second layer starts at the end
-//nb if image width not extactly divisible by game speed
-//gaps can appear and grow or shrink with each render
+//sldier game speed
+const slider = document.getElementById("slider");//vcariable to store and ret slider values
+slider.value = gameSpeed;//init page load set var value to gamespeed settings
+const showGameSpeed = document.getElementById("showGameSpeed");//variable to store and ret slider values
+showGameSpeed.innerHTML = gameSpeed;//init page load set var value to gamespeed settings
+
+//to change scrolling speed based on user input
+slider.addEventListener("change", function(e){
+    gameSpeed = e.target.value;
+    showGameSpeed.innerHTML = e.target.value;
+});
+
+//class to hold each background layer
+class Layer {
+    constructor(image, speedModifier){
+        this.x = 0;
+        this.y = 0;
+        this.width = 2400;
+        this.height = 700;
+        this.x2 = this.width;
+
+        this.image = image;
+        this.speedModifier = speedModifier;
+        this.speed = gameSpeed * this.speedModifier;
+    }
+
+    //move layers horizontally by changing x and x2 values
+    //and will reset when x moves off screen
+    //same as previous method, just wrapped in class
+    update(){
+        this.speed = gameSpeed * this.speedModifier;
+        if( this.x <= -this.width){
+            this.x = this.width + this.x2 - this.speed;
+        }
+
+        if( this.x2 <= -this.width){
+            this.x2 = this.width + this.x - this.speed;
+        }
+
+        this.x = Math.floor(this.x - this.speed);
+        this.x2 = Math.floor(this.x2 - this.speed);
+    }
+
+    //takes info about layer and draw on canvas
+    //everytime update runs to update posn, draw will run to redraw
+    draw(){
+        ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+        ctx.drawImage(this.image, this.x2, this.y, this.width, this.height);
+    }
+}
+
+
+//instantiate each layer object
+const layer1 = new Layer(backgroundLayer1, 0.2);
+const layer2 = new Layer(backgroundLayer2, 0.4);
+const layer3 = new Layer(backgroundLayer3, 0.6);
+const layer4 = new Layer(backgroundLayer4, 0.8);
+const layer5 = new Layer(backgroundLayer5, 1);
+
+//declare array to store layers
+const layerObjects = [layer1, layer2, layer3, layer4, layer5];
 
 //drawing function to animate background
 function animate(){
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);//clears canvas
-    ctx.drawImage(backgroundLayer4, x, 0);//draws image on canvas from x0 y0
-    ctx.drawImage(backgroundLayer4, x2, 0);//draws second image on canvas
-
-    if (x < -2400) x = 2400 + x2 - gameSpeed;//if x is less than -1000, reset x to 0
-    else x -= gameSpeed;//moves the image to the left
-
-    if (x2 < -2400) x2 = 2400 + x - gameSpeed;//if x is less than -1000, reset x to 0
-    else x2 -= gameSpeed;//moves the image to the left
+    
+    //updae and draw each layer
+    layerObjects.forEach(layer => {
+        layer.update();
+        layer.draw();
+    });
 
     requestAnimationFrame(animate);//calls function over and over again
 };

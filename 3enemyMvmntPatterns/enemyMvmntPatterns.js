@@ -6,7 +6,7 @@ const CANVAS_WIDTH = canvas.width = 500;
 const CANVAS_HEIGHT = canvas.height = 1000;
 
 //holds number of enemies
-const enemyCount = 50;
+const enemyCount = 300;
 const enemiesArray = [];
 
 //loading in a spritesheet for an enemy
@@ -21,23 +21,29 @@ class Enemy {
     constructor() {
         this.image = new Image();
         this.image.src = "../res/enemies/enemy1.png";
-        this.x = Math.random() * (canvas.width);
-        this.y = Math.random() * (canvas.height);
         
-        this.speed = Math.random() * 4 - 2;
+        //this.speed = Math.random() * 4 - 2;
         this.spriteWidth = 293;
         this.spriteHeight = 155;
 
         this.width = this.spriteWidth / 2.5;
         this.height = this.spriteHeight / 2.5;
 
+        this.x = Math.random() * (canvas.width - this.width);
+        this.y = Math.random() * (canvas.height - this.height);
+        
         this.frame = 0;
         this.flapSpeed = Math.floor(Math.random() * 3 + 1);
     }
 
     update() {
-        this.x += this.speed;
-        this.y += this.speed;
+        //this causes the wiggle effect on the bats
+        //the minus range allows movement randomly in -ve dir'n
+        //nb having larger range causes more wiggling 
+        // range should be more or less even in both dir'n
+        // to avoid stray movement in any one specific dir'n
+        this.x += Math.random() * 5 - 2.5;
+        this.y += Math.random() * 5 - 2.5;
 
         //animate sprite
         if ( gameFrame % this.flapSpeed === 0 ) {

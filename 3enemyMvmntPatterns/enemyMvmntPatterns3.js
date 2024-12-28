@@ -32,20 +32,18 @@ class Enemy {
         this.flapSpeed = Math.floor(Math.random() * 3 + 1);
 
         //this.angle = Math.random() * 2;//used to generate sin value of movment in y axis
-        this.angle = 0;
-        this.angleSpeed = Math.random() * 0.2;//used to randomize increment of angle
-        this.curve = Math.random() * 7;
+        //used for spawn point
+        this.angle = Math.random() * 360;
+        this.angleSpeed = Math.random() * 1.5 + 0.5;//used to randomize increment of angle
+        //this.curve = Math.random() * 200 + 50;//amplitude
     }
 
     update() {
-        //this causes the wiggle effect on the bats
-        //the minus range allows movement randomly in -ve dir'n
-        //nb having larger range causes more wiggling 
-        // range should be more or less even in both dir'n
-        // to avoid stray movement in any one specific dir'n
-        //this.x -= this.speed;
-        //this.y += this.curve * Math.sin(this.angle);
-        this.angle += this.angleSpeed;//used to generate sin value of movment in y axis
+        //canvas.width/2 represents the radius 
+        this.x = canvas.width/2 * Math.sin(this.angle * Math.PI / 90) + canvas.width / 2 - this.width/2;
+        
+        this.y = canvas.height/2 * Math.cos(this.angle * Math.PI / 180) + canvas.height / 2 - this.height/2;
+        this.angle += this.angleSpeed;
 
         if (this.x + this.width < 0) this.x = canvas.width;//this moves it back to far right of screen to loop
 

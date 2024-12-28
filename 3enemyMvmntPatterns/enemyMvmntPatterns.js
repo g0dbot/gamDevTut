@@ -5,18 +5,71 @@ const ctx = canvas.getContext("2d");
 const CANVAS_WIDTH = canvas.width = 500;
 const CANVAS_HEIGHT = canvas.height = 1000;
 
-enemy1 = {
-    x: 10,
-    y: 50,
-    width: 200,
-    height: 200
+//holds number of enemies
+const enemyCount = 50;
+const enemiesArray = [];
+
+//loading in a spritesheet for an enemy
+// const enemyImage = new Image();
+// enemyImage.src = "../res/enemies/enemy1.png";
+
+//var to hold current frame
+let gameFrame = 0;
+
+//class template for enemy object
+class Enemy {
+    constructor() {
+        this.image = new Image();
+        this.image.src = "../res/enemies/enemy1.png";
+        this.x = Math.random() * (canvas.width);
+        this.y = Math.random() * (canvas.height);
+        
+        this.speed = Math.random() * 4 - 2;
+        this.spriteWidth = 293;
+        this.spriteHeight = 155;
+
+        this.width = this.spriteWidth / 2.5;
+        this.height = this.spriteHeight / 2.5;
+
+        this.frame = 0;
+        this.flapSpeed = Math.floor(Math.random() * 3 + 1);
+    }
+
+    update() {
+        this.x += this.speed;
+        this.y += this.speed;
+
+        //animate sprite
+        if ( gameFrame % this.flapSpeed === 0 ) {
+            this.frame > 4 ? this.frame = 0 : this.frame++;
+        }
+    }
+
+    draw() {
+        //first arg is image to draw
+        //next 4 area to crop from source sprite sheet
+        //last 4 where on canvas to place cropped frame 
+        ctx.drawImage(this.image, 
+            this.frame * this.spriteWidth, 0, this.spriteWidth, this.spriteHeight, 
+            this.x, this.y, this.width, this.height);
+    }
+}
+
+//create multiple enemies
+for (let i = 0; i < enemyCount; i++) {
+    enemiesArray.push(new Enemy());
 }
 
 function animate() {
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    enemy1.y++;
-    enemy1.x++;
-    ctx.fillRect(enemy1.x, enemy1.y, enemy1.width, enemy1.height);
+
+    //update each enemy
+    enemiesArray.forEach((enemy) => {
+        enemy.update();
+        enemy.draw();
+    });
+
+    gameFrame++;
     requestAnimationFrame(animate);
 }
 

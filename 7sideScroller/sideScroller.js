@@ -15,6 +15,8 @@ window.addEventListener("load", function() {
 
     let gameOver = false;
 
+    const fullScreenbutton = document.getElementById("fullScreenButton");
+
     //apply event listeners and hold array of currently active keys
     class InputHandler{
         constructor(){
@@ -353,6 +355,23 @@ window.addEventListener("load", function() {
         gameOver = false;
         animate(0);
     }
+
+    function toggleFullscreen() {
+        //document.fullscreenElement is a read only property on doc obj
+        //returns element that is currently being presented in fs mode
+        //if null, means fs mode not active
+        console.log(document.fullscreenElement);
+
+        if(document.fullscreenElement == null) {
+            canvas.requestFullscreen().then().catch(err => {
+                alert(`Err ${err.message}`);
+            });
+        } else {
+            document.exitFullscreen();
+        }
+    }
+
+    fullScreenbutton.addEventListener("click", toggleFullscreen);
 
     //instances 
     const input = new InputHandler();//input handler class

@@ -19,6 +19,9 @@ window.addEventListener("load", function() {
     class InputHandler{
         constructor(){
             this.keys = [];
+            this.touchY = null;//y pos of touch event
+            this.touchTreshold = 30;//threshold for touch events
+
             //listener placed directly in class to auto apply them
             window.addEventListener("keydown", e => {
                 //console.log(e.key);
@@ -38,6 +41,10 @@ window.addEventListener("load", function() {
                         this.keys.push(e.key);
                     }
                 
+                else if (e.key === "Enter" && gameOver) {
+                    restartGame();
+                }
+                
                 console.log(e.key, this.keys);
             });
 
@@ -52,6 +59,35 @@ window.addEventListener("load", function() {
 
                 console.log(e.key, this.keys);
             });
+
+            //touch events
+            window.addEventListener("touchstart", e => {
+                //console.log('start');
+                //console.log(e);
+                this.touchY = e.changedTouches[0].pageY;
+            });
+
+            window.addEventListener("touchmove", e => {
+                //console.log('moving');
+                const swipeDistance = e.changedTouches[0].pageY - this.touchY;
+
+                if (swipeDistance < -this.touchTreshold && this.keys.indexOf('swipe up') === -1) {
+                    this.keys.push('swipe up')
+                }
+
+                if (swipeDistance > this.touchTreshold && this.keys.indexOf('swipe down') === -1) {
+                    this.keys.push('swipe down');
+                    if (gameOver) restartGame();
+                }
+            });
+
+            window.addEventListener("touchend", e => {
+                //console.log(this.keys);
+                //remove swipe events
+                this.keys.splice(this.keys.indexOf('swipe up'), 1);
+                this.keys.splice(this.keys.indexOf('swipe down'), 1);
+            });
+                
         }
     }
 
@@ -82,6 +118,14 @@ window.addEventListener("load", function() {
 
             this.vy = 0;//vertical velocity
             this.weight = 1;
+        }
+
+        //for restarting game
+        restart() {
+            this.x = 0;
+            this.y = this.gameHeight - this.height;
+            this.maxFrame = 8;
+            this.frameY = 0;
         }
 
         //context used to specify which canvas to draw on
@@ -138,7 +182,7 @@ window.addEventListener("load", function() {
             else    if(input.keys.indexOf("ArrowLeft") > -1) { this.speed = -5;}
 
             //vertical movement inp
-            else if (input.keys.indexOf("ArrowUp") > -1 && this.onGround()) { this.vy -= 32; }
+            else if ((input.keys.indexOf("ArrowUp") > -1 || input.keys.indexOf("swipe up") > -1) && this.onGround()) { this.vy -= 32; }
             else { this.speed = 0; }
 
             //restricting horizontalmovement within canvas
@@ -201,6 +245,10 @@ window.addEventListener("load", function() {
         update() {
             this.x -= this.speed;//scrolling bg
             if (this.x < 0 -this.width) this.x = 0;
+        }
+
+        restart() {
+            this.x = 0;
         }
     }
 
@@ -295,6 +343,15 @@ window.addEventListener("load", function() {
             context.fillStyle = "white";
             context.fillText("GAME OVER your score is: " + score, canvas.width / 2, canvas.height / 2 + 5);
         }
+    }
+
+    function restartGame() {
+        player.restart();
+        background.restart();
+        enemies = [];
+        score = 0;
+        gameOver = false;
+        animate(0);
     }
 
     //instances 

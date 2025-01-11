@@ -2,7 +2,8 @@ import {
     StandingLeft, StandingRight,
     SittingLeft, SittingRight,
     RunningLeft, RunningRight,
-    JumpingLeft, JumpingRight } from "./state.js";
+    JumpingLeft, JumpingRight,
+    FallingLeft, FallingRight } from "./state.js";
 
 //to export class to be reused by other modules
 export default class Player {
@@ -24,6 +25,8 @@ export default class Player {
             new RunningRight(this),
             new JumpingLeft(this),
             new JumpingRight(this),
+            new FallingLeft(this),
+            new FallingRight(this),
         ];
 
         this.currentState = this.states[1]; //player can only be in one state at a time
@@ -38,6 +41,7 @@ export default class Player {
         this.x = this.gameWidth / 2 - this.width / 2;
         this.y = this.gameHeight - this.height;
 
+        this.maxFrame = 6;
         this.frameX = 0;
         this.frameY = 0;
 
@@ -46,10 +50,24 @@ export default class Player {
 
         this.vy = 0;
         this.weight = 0.5;
+
+        //for timer frames
+        this.fps = 30;
+        this.frameTimer = 0;
+        this.frameInterval = 1000 / this.fps;
     }
 
     //function to draw on specific canvas (context) supplied as arg
-    draw(context) {
+    draw(context, deltaTime) {
+        //animate frame
+        if (this.frameTimer > this.frameInterval) {
+            this.frameTimer = 0;
+            if (this.frameX < this.maxFrame) { this.frameX++; }
+            else { this.frameX = 0; }
+        } else {
+            this.frameTimer += deltaTime;
+        }
+
         //draw image on canvas at x,y posn
         context.drawImage(this.image, //image to draw
 

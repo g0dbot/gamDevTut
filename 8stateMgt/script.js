@@ -23,16 +23,21 @@ window.addEventListener('load', function() {
     //inp handler
     const input = new InputHandler();
     
+    //to hold time from last animation loop
+    let lastTime = 0;
 
-    function animate() {
+    function animate(timeStamp) {
+        const deltaTime = timeStamp - lastTime;//change in time from prev loop and this
+        lastTime = timeStamp;//update last time to this current time
+
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         //console.log(input.lastKey);
         player.update(input.lastKey);
-        player.draw(ctx);
+        player.draw(ctx, deltaTime);
         drawStatusText(ctx, input, player);
         requestAnimationFrame(animate);
         
     }
 
-    animate();
+    animate(0);
 });

@@ -1,5 +1,6 @@
 import Player from "./player.js";//importing player class and methods
 import InputHandler from "./input.js";
+import { Background } from "./background.js";
 
 //ensures all assets are loaded before js can run
 window.addEventListener("load", function() {
@@ -23,22 +24,25 @@ window.addEventListener("load", function() {
             this.width = width;
             this.height = height;
 
-            this.groundMargin = 50;//space between ground and player
+            this.groundMargin = 82;//space between ground and player
+            this.speed = 0;//speed of layers
 
+            this.background = new Background(this);//instantiate background
             //instantiate player
             //inside game class, this represents the current object executing methods
             this.player = new Player(this);//we use this to pass game as argument to player
             //this gives us access to player class within game class
-
             this.input = new InputHandler();
         }
 
         update(deltaTime) {
+            this.background.update();//call update method
             this.player.update(this.input.keys, deltaTime);//pass input handler to player
         }
 
         //takes context (current canvas to draw on) as arg
         draw(context) {
+            this.background.draw(context);//call draw method
             this.player.draw(context);//draw player taking context as arg
         }
     } 

@@ -26,7 +26,9 @@ export class Sitting extends State {
     }
 
     enter() {
-        this.player.frameY = 5;//row of spritesheet
+        this.player.frameX = 0;//reset frame to prev blinking
+        this.player.maxFrame = 4;//set max frame before frameY to avoid blinking
+        this.player.frameY = 5;//row of spritesheet        
     }
 
     handleInput(input){
@@ -39,9 +41,11 @@ export class Running extends State {
     constructor(player) {
         super('RUNNING');//need to use super before using 'this' keyword
         this.player = player;
+        this.player.maxFrame = 4;//set max frame before frameY to avoid blinking
     }
 
     enter() {
+        this.player.frameX = 0;//reset frame to prev blinking
         this.player.frameY = 3;//row of spritesheet
     }
 
@@ -59,6 +63,8 @@ export class Jumping extends State {
     }
 
     enter() {
+        this.player.frameX = 0;//reset frame to prev blinking
+        this.player.maxFrame = 6;//set max frame before frameY to avoid blinking
         if (this.player.onGround()) { this.player.vy -= 30; }//push up if on ground
         this.player.frameY = 1;//row of spritesheet
     }
@@ -76,6 +82,8 @@ export class Falling extends State {
     }
 
     enter() {
+        this.player.frameX = 0;//reset frame to prev blinking
+        this.player.maxFrame = 6;//set max frame before frameY to avoid blinking
         if (this.player.onGround()) { this.player.vy -= 30; }//push up if on ground
         this.player.frameY = 1;//row of spritesheet
     }

@@ -13,7 +13,7 @@ export default class Player {
 
         //player position on canvs
         this.x = 0;
-        this.y = this.game.height - this.height;//height of entire canvas - height of sprite
+        this.y = this.game.height - this.height - this.game.groundMargin;//height of entire canvas - height of sprite
 
         //this.image = document.getElementById("player");
         //js auto creates ref to all elemesnt with id attr into global namespace using id as var name
@@ -41,12 +41,16 @@ export default class Player {
         this.currentState.enter();//enter starting state
 
         //frames
+        this.fps = 20;
+        this.frameInterval = 1000 / this.fps;
+        this.frameTimer = 0;
         this.frameX = 0;
         this.frameY = 0;
+        this.maxFrame;
     }
 
     //move char around based on input and animate frames
-    update(input) {
+    update(input, deltaTime) {
         //this.x++;//simulate mvmnt
         
         //handle state
@@ -71,6 +75,19 @@ export default class Player {
         this.y += this.vy;
         if (!this.onGround()) { this.vy += this.weight; }//gravity affecting jump to pull player back down
         else this.vy = 0;//if player is on ground dont fall below ground
+
+        //sprite animation
+        // if (this.frameX < this.maxFrame) { this.frameX++; }//animate
+        // else this.frameX = 0;//reset frame
+
+        if(this.frameTimer > this.frameInterval) {
+            this.frameTimer = 0;//reset time counter
+
+            if (this.frameX < this.maxFrame) { this.frameX++; }//animate
+            else this.frameX = 0;//reset frame
+        }
+
+        else this.frameTimer += deltaTime;
     }
 
     //draw takes values and render currently active frame on canvas using context
@@ -97,7 +114,7 @@ export default class Player {
     }
 
     //checks if player is on ground
-    onGround() { return this.y >= this.game.height - this.height; }
+    onGround() { return this.y >= this.game.height - this.height - this.game.groundMargin; }
 
     //changing player state
     setState(state) { 

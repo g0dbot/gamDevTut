@@ -23,6 +23,8 @@ window.addEventListener("load", function() {
             this.width = width;
             this.height = height;
 
+            this.groundMargin = 50;//space between ground and player
+
             //instantiate player
             //inside game class, this represents the current object executing methods
             this.player = new Player(this);//we use this to pass game as argument to player
@@ -31,8 +33,8 @@ window.addEventListener("load", function() {
             this.input = new InputHandler();
         }
 
-        update() {
-            this.player.update(this.input.keys);//pass input handler to player
+        update(deltaTime) {
+            this.player.update(this.input.keys, deltaTime);//pass input handler to player
         }
 
         //takes context (current canvas to draw on) as arg
@@ -43,13 +45,20 @@ window.addEventListener("load", function() {
 
     const game = new Game(canvas.width, canvas.height);//instantiate game class
     
+    let lastTime = 0;//time of last frame from last ani loop
 
     function animate(timestamp) {
+        const deltaTime = timestamp - lastTime;//time since last frame
+        lastTime = timestamp;//sets last time to current time
+        //console.log(deltaTime);//print time since last frame
+
         //clear canvas every frame to prevent artifacts
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        game.update();
+        game.update(deltaTime);
         game.draw(ctx);//call draw method
 
+        //has 2 spec features auto adjusts refresh rate
+        //also auto gens timestamps and passes it as arg
         requestAnimationFrame(animate);//calls function over and over again
     }
 

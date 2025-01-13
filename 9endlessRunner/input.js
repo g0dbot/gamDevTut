@@ -17,7 +17,7 @@ export default class InputHandler{
             //inedeOf returns index -1 means key is not in array
 
             this.lastKey = e.key;//keeps track of last key pressed
-            console.log(e.key, this.keys);//checking events to see if it works
+            //console.log(e.key, this.keys);//checking events to see if it works
         })
 
         //listener for keyup event and removes key from keys array if in it
@@ -31,7 +31,7 @@ export default class InputHandler{
                     this.keys.splice(this.keys.indexOf(e.key), 1);//removes key from keys array if in it
                 }
 
-                console.log(e.key, this.keys);//checking events to see if it works
+                //console.log(e.key, this.keys);//checking events to see if it works
         })
     }
 }

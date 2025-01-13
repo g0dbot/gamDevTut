@@ -1,3 +1,5 @@
+import { Sitting, Running, Jumping, Falling } from './playerStates.js';
+
 //each file/module can have only one export
 export default class Player {
     //takes game as arg to get access to game properties
@@ -24,11 +26,32 @@ export default class Player {
         //vertical mvmnt props
         this.vy = 0;
         this.weight = 1;
+
+        //to hold all states of player
+        this.states = [ 
+            new Sitting(this),
+            new Running(this),
+            new Jumping(this),
+            new Falling(this),
+        ];//sep class for each state so that each state can have its own enter method to handle any props needed
+
+        //to hold current state of player
+        this.currentState = this.states[0];
+
+        this.currentState.enter();//enter starting state
+
+        //frames
+        this.frameX = 0;
+        this.frameY = 0;
     }
 
     //move char around based on input and animate frames
     update(input) {
         //this.x++;//simulate mvmnt
+        
+        //handle state
+        this.currentState.handleInput(input);
+
         //handle movement
         //horizontal mvmnt
         this.x += this.speed;
@@ -42,9 +65,8 @@ export default class Player {
         else if (this.x >= this.game.width - this.width) { this.x = this.game.width - this.width; }//right bound
 
         
-
         //if the player is on the ground, the player can jump
-        if(input.includes('ArrowUp') && this.onGround()) { this.vy -= 30; }//jump
+        //if(input.includes('ArrowUp') && this.onGround()) { this.vy -= 30; }//jump
         //vertical mvmnt
         this.y += this.vy;
         if (!this.onGround()) { this.vy += this.weight; }//gravity affecting jump to pull player back down
@@ -68,11 +90,18 @@ export default class Player {
         //source x, source y, source width, source height
         //source x and y means position to start crop
         //width and height means how much to crop from source image to draw on canvas
+        //frames are locations on sprite sheet, so they pass the correct frame for animations
         context.drawImage(this.image,
-            0, 0, this.width, this.height,
+            this.frameX * this.width, this.frameY * this.height, this.width, this.height,
             this.x, this.y, this.width, this.height);
     }
 
     //checks if player is on ground
     onGround() { return this.y >= this.game.height - this.height; }
+
+    //changing player state
+    setState(state) { 
+        this.currentState = this.states[state];
+        this.currentState.enter();
+    }
 }

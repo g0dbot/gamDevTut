@@ -1,4 +1,4 @@
-import Player from "./player";//importing player class and methods
+import Player from "./player.js";//importing player class and methods
 
 //ensures all assets are loaded before js can run
 window.addEventListener("load", function() {
@@ -15,22 +15,29 @@ window.addEventListener("load", function() {
         //constructor taking dimensions as args
         //contructor is a special type of function
         //gets run when class is instantiated
-        //so all code within constructor is executed on instantaiation
+        //so all code within constructor is executed on instantaiation (side effect)
         //takes canvas width and height as args
         constructor(width, height) {
+            //take arg and convert to class prop
             this.width = width;
             this.height = height;
+
+            //instantiate player
+            //inside game class, this represents the current object executing methods
+            this.player = new Player(this);//we use this to pass game as argument to player
+            //this gives us access to player class within game class
         }
 
         update() {
 
         }
 
-        draw() {
-
+        //takes context (current canvas to draw on) as arg
+        draw(context) {
+            this.player.draw(context);//draw player taking context as arg
         }
     } 
 
     const game = new Game(canvas.width, canvas.height);//instantiate game class
-    const player = new Player(game);//instantiate player class
+    game.draw(ctx);//call draw method
 });

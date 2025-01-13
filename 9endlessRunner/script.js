@@ -1,4 +1,5 @@
 import Player from "./player.js";//importing player class and methods
+import InputHandler from "./input.js";
 
 //ensures all assets are loaded before js can run
 window.addEventListener("load", function() {
@@ -26,10 +27,12 @@ window.addEventListener("load", function() {
             //inside game class, this represents the current object executing methods
             this.player = new Player(this);//we use this to pass game as argument to player
             //this gives us access to player class within game class
+
+            this.input = new InputHandler();
         }
 
         update() {
-
+            this.player.update(this.input.keys);//pass input handler to player
         }
 
         //takes context (current canvas to draw on) as arg
@@ -39,5 +42,16 @@ window.addEventListener("load", function() {
     } 
 
     const game = new Game(canvas.width, canvas.height);//instantiate game class
-    game.draw(ctx);//call draw method
+    
+
+    function animate(timestamp) {
+        //clear canvas every frame to prevent artifacts
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        game.update();
+        game.draw(ctx);//call draw method
+
+        requestAnimationFrame(animate);//calls function over and over again
+    }
+
+    animate(0);
 });

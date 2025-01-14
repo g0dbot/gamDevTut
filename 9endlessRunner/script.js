@@ -1,6 +1,7 @@
 import Player from "./player.js";//importing player class and methods
 import InputHandler from "./input.js";
 import { Background } from "./background.js";
+import { FlyingEnemy, GroundEnemy, ClibmingEnemy } from "./enemy.js";
 
 //ensures all assets are loaded before js can run
 window.addEventListener("load", function() {
@@ -33,17 +34,49 @@ window.addEventListener("load", function() {
             this.player = new Player(this);//we use this to pass game as argument to player
             //this gives us access to player class within game class
             this.input = new InputHandler();
+
+            //enemies
+            this.enemies = [];//array to hold all current enemies
+            this.enemyTimer = 0;
+            this.enemyInterval = 1000;//time between enemy spawn
         }
 
         update(deltaTime) {
             this.background.update();//call update method
             this.player.update(this.input.keys, deltaTime);//pass input handler to player
+
+            //handle enemies
+            if (this.enemyTimer > this.enemyInterval) {
+                this.addEnemy();
+                this.enemyTimer = 0;
+            } else {
+                this.enemyTimer += deltaTime;
+            }
+
+            this.enemies.forEach(enemy => {
+                enemy.update(deltaTime);
+                if (enemy.markedForDeletion) this.enemies.splice(this.enemies.indexOf(enemy), 1);//remove enemy
+            });
         }
 
         //takes context (current canvas to draw on) as arg
         draw(context) {
             this.background.draw(context);//call draw method
             this.player.draw(context);//draw player taking context as arg
+
+            this.enemies.forEach(enemy => {
+                enemy.draw(context);
+                
+            });
+        }
+
+        addEnemy() {
+            //only add gound enemies if player is moving
+            if(this.speed > 0 && Math.random() < 0.05) this.enemies.push(new GroundEnemy(this));
+            else if (this.speed > 0) this.enemies.push(new ClibmingEnemy(this));
+
+            this.enemies.push(new FlyingEnemy(this));
+            console.log(this.enemies);//debug
         }
     } 
 

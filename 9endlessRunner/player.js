@@ -1,4 +1,4 @@
-import { Sitting, Running, Jumping, Falling } from './playerStates.js';
+import { Sitting, Running, Jumping, Falling, Rolling } from './playerStates.js';
 
 //each file/module can have only one export
 export default class Player {
@@ -29,16 +29,14 @@ export default class Player {
 
         //to hold all states of player
         this.states = [ 
-            new Sitting(this),
-            new Running(this),
-            new Jumping(this),
-            new Falling(this),
+            new Sitting(this.game),
+            new Running(this.game),
+            new Jumping(this.game),
+            new Falling(this.game),
+            new Rolling(this.game),
         ];//sep class for each state so that each state can have its own enter method to handle any props needed
 
-        //to hold current state of player
-        this.currentState = this.states[0];
-
-        this.currentState.enter();//enter starting state
+        
 
         //frames
         this.fps = 20;
@@ -47,10 +45,16 @@ export default class Player {
         this.frameX = 0;
         this.frameY = 0;
         this.maxFrame;
+
+        //to hold current state of player
+        // this.currentState = this.states[0];
+
+        // this.currentState.enter();//enter starting state
     }
 
     //move char around based on input and animate frames
     update(input, deltaTime) {
+        this.checkCollision();
         //this.x++;//simulate mvmnt
         
         //handle state
@@ -103,6 +107,9 @@ export default class Player {
         //added args stretxhes image to specified size
         //context.drawImage(this.image, this.x, this.y, this.width, this.height);
 
+        //debug mode
+        if (this.game.debug) { context.strokeRect(this.x, this.y, this.width, this.height); }
+
         //9 arg draw image takes 4 extra args,
         //source x, source y, source width, source height
         //source x and y means position to start crop
@@ -121,5 +128,23 @@ export default class Player {
         this.currentState = this.states[state];
         this.game.speed = speed;
         this.currentState.enter();
+    }
+
+    checkCollision(){
+        this.game.enemies.forEach(enemy => {
+            if(
+                enemy.x < this.x + this.width &&
+                enemy.x + enemy.width > this.x &&
+                enemy.y < this.y + this.height &&
+                enemy.y + enemy.height > this.y
+            ) {
+                //coll detect
+                enemy.markedForDeletion = true;
+                this.game.score++;
+            }
+            else{
+                //no coll detect
+            }
+        })
     }
 }

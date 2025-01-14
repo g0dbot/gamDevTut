@@ -2,6 +2,7 @@ import Player from "./player.js";//importing player class and methods
 import InputHandler from "./input.js";
 import { Background } from "./background.js";
 import { FlyingEnemy, GroundEnemy, ClibmingEnemy } from "./enemy.js";
+import { UI } from "./ui.js";
 
 //ensures all assets are loaded before js can run
 window.addEventListener("load", function() {
@@ -33,12 +34,24 @@ window.addEventListener("load", function() {
             //inside game class, this represents the current object executing methods
             this.player = new Player(this);//we use this to pass game as argument to player
             //this gives us access to player class within game class
-            this.input = new InputHandler();
+            this.input = new InputHandler(this);
+
+            this.UI = new UI(this);
 
             //enemies
             this.enemies = [];//array to hold all current enemies
             this.enemyTimer = 0;
             this.enemyInterval = 1000;//time between enemy spawn
+
+            this.particles = [];//array to hold all current particles
+            this.maxParticles = 50;
+
+            this.debug = true;//debug
+            this.score = 0;
+            this.fontColor = "black";
+
+            this.player.currentState = this.player.states[0];
+            this.player.currentState.enter();//enter starting state
         }
 
         update(deltaTime) {
@@ -57,6 +70,17 @@ window.addEventListener("load", function() {
                 enemy.update(deltaTime);
                 if (enemy.markedForDeletion) this.enemies.splice(this.enemies.indexOf(enemy), 1);//remove enemy
             });
+
+            this.particles.forEach((particle, index) =>{
+                particle.update();
+                if(particle.markedForDeletion) this.particles.splice(index, 1);//remove particle
+            });
+
+            if (this.particles.length > this.maxParticles) {
+                this.particles = this.particles.slice(0, this.maxParticles);
+            }
+
+            //console.log(this.particles);
         }
 
         //takes context (current canvas to draw on) as arg
@@ -68,6 +92,13 @@ window.addEventListener("load", function() {
                 enemy.draw(context);
                 
             });
+
+            this.UI.draw(context);
+
+            this.particles.forEach((particle) =>{
+                particle.draw(context);
+                if(particle.markedForDeletion) this.particles.splice(this.particles.indexOf(particle), 1);//remove particle
+            });
         }
 
         addEnemy() {
@@ -76,7 +107,7 @@ window.addEventListener("load", function() {
             else if (this.speed > 0) this.enemies.push(new ClibmingEnemy(this));
 
             this.enemies.push(new FlyingEnemy(this));
-            console.log(this.enemies);//debug
+            //console.log(this.enemies);//debug
         }
     } 
 

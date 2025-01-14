@@ -1,8 +1,9 @@
 //class to handle active input from user and removing inactive input
 export default class InputHandler{
-    constructor() {
+    constructor(game) {
         this.keys = [];//keeps track of active keys (key pressed down) and remvoing inactive(key up)
         this.lastKey = '';//keeps track of last key pressed
+        this.game = game;
 
         //listener for keydown event and adds key to keys array if not already in it
         window.addEventListener("keydown", e => {
@@ -16,6 +17,9 @@ export default class InputHandler{
                 { this.keys.push(e.key); }//adds key to keys array if not already inside
             //inedeOf returns index -1 means key is not in array
 
+            else if (e.key === 'd'){
+                this.game.debug = !this.game.debug;
+            }
             this.lastKey = e.key;//keeps track of last key pressed
             //console.log(e.key, this.keys);//checking events to see if it works
         })

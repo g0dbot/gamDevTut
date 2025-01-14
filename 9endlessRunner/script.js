@@ -46,15 +46,25 @@ window.addEventListener("load", function() {
             this.particles = [];//array to hold all current particles
             this.maxParticles = 50;
 
-            this.debug = true;//debug
+            this.collisions = [];
+
+            this.debug = false;//debug
             this.score = 0;
             this.fontColor = "black";
 
             this.player.currentState = this.player.states[0];
             this.player.currentState.enter();//enter starting state
+
+            this.time = 0;
+            this.maxTime = 10000;
+            this.gameOver = false;
         }
 
         update(deltaTime) {
+            this.time += deltaTime;
+            if (this.time > this.maxTime) {
+                this.gameOver = true;
+            }
             this.background.update();//call update method
             this.player.update(this.input.keys, deltaTime);//pass input handler to player
 
@@ -71,14 +81,21 @@ window.addEventListener("load", function() {
                 if (enemy.markedForDeletion) this.enemies.splice(this.enemies.indexOf(enemy), 1);//remove enemy
             });
 
+            //handle particles
             this.particles.forEach((particle, index) =>{
                 particle.update();
                 if(particle.markedForDeletion) this.particles.splice(index, 1);//remove particle
             });
 
             if (this.particles.length > this.maxParticles) {
-                this.particles = this.particles.slice(0, this.maxParticles);
+                this.particles = this.maxParticles;
             }
+
+            //handle colls
+            this.collisions.forEach((collision, index) => {
+                collision.update(deltaTime);//call update method
+                if (collision.markedForDeletion) this.collisions.splice(index, 1);//remove collision
+            })
 
             //console.log(this.particles);
         }
@@ -97,7 +114,10 @@ window.addEventListener("load", function() {
 
             this.particles.forEach((particle) =>{
                 particle.draw(context);
-                if(particle.markedForDeletion) this.particles.splice(this.particles.indexOf(particle), 1);//remove particle
+            });
+
+            this.collisions.forEach((collision) =>{
+                collision.draw(context);
             });
         }
 
@@ -127,7 +147,7 @@ window.addEventListener("load", function() {
 
         //has 2 spec features auto adjusts refresh rate
         //also auto gens timestamps and passes it as arg
-        requestAnimationFrame(animate);//calls function over and over again
+        if(!game.gameOver)requestAnimationFrame(animate);//calls function over and over again
     }
 
     animate(0);

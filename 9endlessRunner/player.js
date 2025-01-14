@@ -1,4 +1,5 @@
-import { Sitting, Running, Jumping, Falling, Rolling } from './playerStates.js';
+import { Sitting, Running, Jumping, Falling, Rolling, Diving, Hit } from './playerStates.js';
+import { CollisionAnimation } from './collisionAnimation.js';
 
 //each file/module can have only one export
 export default class Player {
@@ -34,6 +35,8 @@ export default class Player {
             new Jumping(this.game),
             new Falling(this.game),
             new Rolling(this.game),
+            new Diving(this.game),
+            new Hit(this.game),
         ];//sep class for each state so that each state can have its own enter method to handle any props needed
 
         
@@ -64,8 +67,8 @@ export default class Player {
         //horizontal mvmnt
         this.x += this.speed;
 
-        if (input.includes('ArrowLeft')) { this.x -= this.maxSpeed; }
-        else if (input.includes('ArrowRight')) { this.x += this.maxSpeed; }
+        if (input.includes('ArrowLeft') && this.currentState !== this.states[6]) { this.x -= this.maxSpeed; }
+        else if (input.includes('ArrowRight') && this.currentState !== this.states[6]) { this.x += this.maxSpeed; }
         else this.speed = 0;//handles movement err after key up
 
         //placing boundaries
@@ -79,6 +82,11 @@ export default class Player {
         this.y += this.vy;
         if (!this.onGround()) { this.vy += this.weight; }//gravity affecting jump to pull player back down
         else this.vy = 0;//if player is on ground dont fall below ground
+
+        //vert bounds
+        if (this.y > this.game.height - this.height - this.game.groundMargin) { 
+            this.y = this.game.height - this.height - this.game.groundMargin;
+        }//bottom bound
 
         //sprite animation
         // if (this.frameX < this.maxFrame) { this.frameX++; }//animate
@@ -140,7 +148,19 @@ export default class Player {
             ) {
                 //coll detect
                 enemy.markedForDeletion = true;
-                this.game.score++;
+                this.game.collisions.push(
+                    new CollisionAnimation(this.game, 
+                        enemy.x + enemy.width * 0.5, enemy.y + enemy.height * 0.5));
+
+                if (this.currentState === this.states[4] ||
+                    this.currentState === this.states[5]
+                ) {
+                    this.game.score++;//increment score
+                }
+
+                else {
+                    this.setState(6, 0);
+                }
             }
             else{
                 //no coll detect

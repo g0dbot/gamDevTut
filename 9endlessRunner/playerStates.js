@@ -51,7 +51,7 @@ export class Running extends State {
     }
 
     enter() {
-        this.game.player.maxFrame = 4;//set max frame before frameY to avoid blinking
+        this.game.player.maxFrame = 8;//set max frame before frameY to avoid blinking
         this.game.player.frameX = 0;//reset frame to prev blinking
         this.game.player.frameY = 3;//row of spritesheet
     }
@@ -84,6 +84,7 @@ export class Jumping extends State {
     handleInput(input){
         if (this.game.player.vy > this.game.player.weight) { this.game.player.setState(states.FALLING, 1); }
         else if (input.includes('Enter')) { this.game.player.setState(states.ROLLING, 2); }
+        else if (input.includes('ArrowDown')) { this.game.player.setState(states.DIVING, 0); }
     }
 }
 
@@ -102,6 +103,7 @@ export class Falling extends State {
 
     handleInput(input){
         if (this.game.player.onGround()) { this.game.player.setState(states.RUNNING, 1); }
+        else if (input.includes('ArrowDown')) { this.game.player.setState(states.DIVING, 0); }
     }
 }
 
@@ -135,6 +137,68 @@ export class Rolling extends State {
         else if (input.includes('Enter') && input.includes('ArrowUp') && this.game.player.onGround()) { 
             this.game.player.setState(states.ROLLING, 2);
             this.game.player.vy -= 27;
+        }
+
+        else if (input.includes('ArrowDown') && !this.game.player.onGround()) { this.game.player.setState(states.DIVING, 0); }
+    }
+}
+
+export class Diving extends State {
+    //accesses player props as arg
+    constructor(game) {
+        super('DIVING', game);//need to use super before using 'this' keyword
+    }
+
+    enter() {
+        this.game.player.frameX = 0;//reset frame to prev blinking
+        this.game.player.maxFrame = 6;//set max frame before frameY to avoid blinking
+        //if (this.game.player.onGround()) { this.game.player.vy -= 30; }//push up if on ground
+        this.game.player.frameY = 6;//row of spritesheet
+        this.game.player.vy = 15;
+    }
+
+    handleInput(input){
+        this.game.particles.unshift(
+            new Fire(   this.game, 
+                        this.game.player.x + this.game.player.width * 0.5, 
+                        this.game.player.y + this.game.player.height * 0.5));
+
+        if (this.game.player.onGround()) { 
+            this.game.player.setState(states.RUNNING, 1);
+            for(let i=0; i<30; i++){
+                this.game.particles.unshift(new Splash(this.game, this.game.player.x, this.game.player.y));
+            }
+        }
+
+        else if (input.includes('Enter') && !this.game.player.onGround()) { 
+            this.game.player.setState(states.ROLLING, 2);
+        }
+    }
+}
+
+export class Hit extends State {
+    //accesses player props as arg
+    constructor(game) {
+        super('HIT', game);//need to use super before using 'this' keyword
+    }
+
+    enter() {
+        this.game.player.frameX = 0;//reset frame to prev blinking
+        this.game.player.maxFrame = 10;//set max frame before frameY to avoid blinking
+        this.game.player.frameY = 4;//row of spritesheet
+    }
+
+    handleInput(input){
+        if (this.game.player.frameX >= this.game.player.maxFrame
+            && this.game.player.onGround()
+        ) { 
+            this.game.player.setState(states.RUNNING, 1);
+        }
+        
+        else if (this.game.player.frameX <= this.game.player.maxFrame
+            && !this.game.player.onGround()
+        ) {
+            this.game.player.setState(states.FALLING, 1);
         }
     }
 }
